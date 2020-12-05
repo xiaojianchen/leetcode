@@ -1,45 +1,57 @@
 package com.leetcode.tree;
+
 import java.util.*;
 
-//中序遍历 inorder = [9,3,15,20,7]
-//后序遍历 postorder = [9,15,7,20,3]
-//             3
-//            / \
-//            9  20
-//            /  \
-//            15   7
-public class L_106_BuildTree {
+//  输入：[3,2,1,6,0,5]
+//  输出：返回下面这棵树的根节点：
+//
+//        6
+//        /   \
+//        3     5
+//        \    /
+//        2  0
+//        \
+//        1
+public class L_654_MaxTree {
 
     public static void main(String[] args) {
-        int[] postorder = new int[]{9,15,7,20,3};
-        int[] inorder = new int[]{9,3,15,20,7};
-        Node node = buildTree(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1);
+        int[] nums = new int[]{3,2,1,6,0,5};
+        Node node = constructMaximumBinaryTree(nums, 0, nums.length - 1);
         levelV2(node);
     }
 
-    private static Node buildTree(int[] postorder, int posStart, int posEnd, int[] inorder, int inStart, int inEnd) {
-        if (posStart > posEnd || inStart > inEnd) {
+    public static Node constructMaximumBinaryTree(int[] nums, int low, int high) {
+        if (nums == null || nums.length == 0) {
             return null;
         }
-        //1.找出根节点
-        int rootVal = postorder[posEnd];
-        Node node = new Node(rootVal);
-        //2.找出中序中的root index，并且分出左右节点个数
+        if (low > high) {
+            return null;
+        }
+
+        // 1. 找到最大值及索引
+        int maxValue = Integer.MIN_VALUE;
         int index = -1;
-        for (int i = inStart; i <= inEnd; i++) {
-            if (rootVal == inorder[i]) {
+        // 注意是i <= high，这里已经只剩索引，上面size转索引已经减去1了。
+        for (int i = low; i <= high; i++) {
+            int value = nums[i];
+            if (value > maxValue) {
+                maxValue = value;
                 index = i;
-                break;
             }
         }
-        int leftTreeSize = index - inStart;
-        // 后序第一个节点就是左子树的，所以要注意posStart + leftTreeSize - 1
-        node.left = buildTree(postorder, posStart, posStart + leftTreeSize - 1,
-                              inorder, inStart, index - 1);
-        node.right = buildTree(postorder, posStart + leftTreeSize, posEnd - 1,
-                              inorder, index + 1, inEnd);
-        return node;
+        if (index == -1) {
+            return null;
+        }
+        System.out.println("index:" + index +" value:" + maxValue);
+        Node head = new Node(maxValue);
+        // 2. 递归调用给左右子树赋值
+        head.left = constructMaximumBinaryTree(nums, low, index - 1);
+        head.right = constructMaximumBinaryTree(nums, index + 1, high);
+
+        return head;
     }
+
+
 
 
     public static class Node {
